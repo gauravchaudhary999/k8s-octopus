@@ -37,13 +37,17 @@ func main() {
 		cmd.CreateOrUpdateEnvironment(spaceName, &env)
 
 	case "createOrUpdateAccount":
+		tokenValue := os.Getenv(tokenName)
+		if tokenValue == "" {
+			panic("ACCOUNT_TOKEN not found in environment. Please set it as a environment variable.")
+		}
 		acc := model.Account{
 			Name:        ifEmptyThen(accName, envName),
 			Description: ifEmptyThen(ifEmptyThen(accDescription, accName), envName),
 			AccountType: accountType,
 			Token: model.AccountToken{
 				HasValue: true,
-				NewValue: os.Getenv(tokenName),
+				NewValue: os.Getenv(tokenValue),
 			},
 		}
 		cmd.CreateOrUpdateAccount(spaceName, []string{envName}, &acc)
@@ -87,6 +91,10 @@ func main() {
 		cmd.CreateOrUpdateLifecycle(spaceName, phOrder, phOrder, atm, otm, &lifecycle)
 
 	case "createOrUpdateFeed":
+		fPassword := os.Getenv(feedPassword)
+		if fPassword == "" {
+			panic("FEED_PASSWORD not found in environment. Please set it as a environment variable.")
+		}
 		feed := model.Feed{
 			Name:     feedName,
 			FeedType: feedType,
@@ -94,7 +102,7 @@ func main() {
 			Username: os.Getenv(feedUserName),
 			Password: model.SecretValue{
 				HasValue: true,
-				NewValue: os.Getenv(feedPassword),
+				NewValue: fPassword,
 			},
 		}
 		cmd.CreateOrUpdateFeed(spaceName, &feed)
@@ -103,6 +111,10 @@ func main() {
 		cmd.CreateOrUpdateActionTemplate(spaceName, atName, ifEmptyThen(atDescription, atName), actionTemplateType)
 
 	case "configureEnvironment":
+		tokenValue := os.Getenv(tokenName)
+		if tokenValue == "" {
+			panic("ACCOUNT_TOKEN not found in environment. Please set it as a environment variable.")
+		}
 		if envName == "" {
 			panic("Environment Name is a compulsory field")
 		}
@@ -120,7 +132,7 @@ func main() {
 			AccountType: accountType,
 			Token: model.AccountToken{
 				HasValue: true,
-				NewValue: os.Getenv(tokenName),
+				NewValue: tokenValue,
 			},
 		}
 		roles := strings.Split(macRoles, ",")
@@ -163,6 +175,7 @@ func main() {
 	case "updateVariableSet":
 		cmd.UpdateVariableSet(spaceName, projectName, filepath, imageTag)
 	case "uploadPackage":
+		fmt.Println("Package Path: ", filepath)
 		cmd.UploadPackage(spaceName, filepath)
 	case "createRelease":
 		cmd.CreateRelease(spaceName, projectName, serviceChartVersion, helmClientVersion, servicePackageVersion, apiGatewayToolVersion)
@@ -173,6 +186,10 @@ func main() {
 }
 
 func configureOctopus() {
+	fPassword := os.Getenv(feedPassword)
+	if fPassword == "" {
+		panic("FEED_PASSWORD not found in environment. Please set it as a environment variable.")
+	}
 	smtm := strings.Split(spaceManagersTeamMembers, ",")
 	smt := strings.Split(spaceManagersTeams, ",")
 	s := model.Space{
@@ -282,7 +299,7 @@ func configureOctopus() {
 		Username: os.Getenv(feedUserName),
 		Password: model.SecretValue{
 			HasValue: true,
-			NewValue: os.Getenv(feedPassword),
+			NewValue: fPassword,
 		},
 	}
 

@@ -73,7 +73,7 @@ func setFlags() {
 	flag.StringVar(&accName, "accName", "", "Account Name")
 	flag.StringVar(&accDescription, "accDescription", "", "Account Description")
 	flag.StringVar(&accountType, "accountType", "Token", "Account Type")
-	flag.StringVar(&tokenName, "tokenName", "TOKEN", "Token Environment Variable Name")
+	flag.StringVar(&tokenName, "tokenName", "ACCOUNT_TOKEN", "Token Environment Variable Name")
 
 	//Machine
 	flag.StringVar(&macName, "macName", "", "Machine Name")
