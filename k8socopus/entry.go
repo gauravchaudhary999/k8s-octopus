@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -23,6 +24,7 @@ func main() {
 			SpaceManagersTeamMembers: smtm,
 			SpaceManagersTeams:       smt,
 		}
+		fmt.Println(s)
 		cmd.CreateOrUpdateSpace(&s)
 	case "createOrUpdateEnvironment":
 		env := model.Environment{
