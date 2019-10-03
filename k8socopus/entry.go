@@ -244,13 +244,17 @@ func configureOctopus() {
 			UseGuidedFailure:           useGuidedFailure,
 			AllowDynamicInfrastructure: allowDynamicInfrastructure,
 		}
+		aToken := os.Getenv(valueFromArray(tokenNameArray, i, "ACCOUNT_TOKEN"))
+		if aToken == "" {
+			panic("Account token  not found in environment. Please set it as a environment variable and pass the env name as --accountTypeArray <NAME> ")
+		}
 		acc := model.Account{
 			Name:        valueFromArray(accNameArray, i, environmentName),
 			Description: valueFromArray(accDescriptionArray, i, environmentName),
 			AccountType: valueFromArray(accountTypeArray, i, "Token"),
 			Token: model.AccountToken{
 				HasValue: true,
-				NewValue: os.Getenv(valueFromArray(tokenNameArray, i, "TOKEN")),
+				NewValue: aToken,
 			},
 		}
 

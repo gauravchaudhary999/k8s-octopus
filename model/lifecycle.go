@@ -1,7 +1,8 @@
 package model
 
 type Phase struct {
-	Id, Name                                              string
+	Id                                                    string `json:"Id,omitempty"`
+	Name                                                  string
 	AutomaticDeploymentTargets, OptionalDeploymentTargets []string
 }
 type Lifecycle struct {
