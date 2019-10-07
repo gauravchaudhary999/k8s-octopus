@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
+	"mime/multipart"
 	"net/http"
-	"os/exec"
-	"strings"
+	"os"
 	"time"
 )
 
@@ -62,25 +61,78 @@ func prepareBody(body interface{}) *bytes.Buffer {
 	}
 }
 
+// func (client *Client) executeRaw() {
+// 	var body string
+// 	if filepath, ok := client.body.(string); ok {
+// 		body = "data=@" + filepath
+// 	} else {
+// 		panic("Invalid filepath")
+// 	}
+
+// 	url := client.host + client.api
+// 	tokenAppenedWithSingleQuote := client.token + "'"
+// 	cmd := strings.Join([]string{"curl -X", client.method.String(), url, "-H", "'accept: application/json'", "-H", "'x-octopus-apikey:", tokenAppenedWithSingleQuote, "-F", body}, " ")
+// 	out, err := exec.Command("/bin/sh", "-c", cmd).Output()
+
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	res, _ := ioutil.ReadAll(NewCurlResponseReader(out))
+// 	fmt.Println(string(res))
+// }
+
 func (client *Client) executeRaw() {
-	var body string
-	if filepath, ok := client.body.(string); ok {
-		body = "data=@" + filepath
+	url := client.host + client.api
+	var path string
+	if p, ok := client.body.(string); ok {
+		path = p
 	} else {
 		panic("Invalid filepath")
 	}
 
-	url := client.host + client.api
-	tokenAppenedWithSingleQuote := client.token + "'"
-	cmd := strings.Join([]string{"curl -X", client.method.String(), url, "-H", "'accept: application/json'", "-H", "'x-octopus-apikey:", tokenAppenedWithSingleQuote, "-F", body}, " ")
-	out, err := exec.Command("bash", "-c", cmd).Output()
+	file, err := os.Open(path)
+	if err != nil {
+		panic("Error in processing file")
+	}
+	defer file.Close()
+
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	fw, err := writer.CreateFormFile("file", path)
+	if err != nil {
+		return
+	}
+	if _, err = io.Copy(fw, file); err != nil {
+		return
+	}
+
+	writer.Close()
+	timeout := time.Duration(60 * time.Second)
+
+	httpClient := http.Client{
+		Timeout: timeout,
+	}
+	request, err := http.NewRequest(client.method.String(), url, body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	request.Header.Set("Content-Type", writer.FormDataContentType())
+	request.Header.Set("X-Octopus-ApiKey", client.token)
+
+	response, err := httpClient.Do(request)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer response.Body.Close()
+	log.Println("Response Status: " + response.Status)
 
 	if err != nil {
 		panic(err)
 	}
-
-	res, _ := ioutil.ReadAll(NewCurlResponseReader(out))
-	fmt.Println(string(res))
+	json.NewDecoder(response.Body).Decode(client.target)
 }
 
 func (client *Client) execute() error {
