@@ -108,7 +108,7 @@ func (client *Client) executeRaw() {
 	}
 
 	writer.Close()
-	timeout := time.Duration(60 * time.Second)
+	timeout := time.Duration(120 * time.Second)
 
 	httpClient := http.Client{
 		Timeout: timeout,

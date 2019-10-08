@@ -29,10 +29,11 @@ func CreateRelease(spaceName, projectName, serviceChartVersion, helmClientVersio
 
 	packagesVersionMapping := make(map[string]string)
 
-	ifPresentThenAdd(packagesVersionMapping, "ServiceChart", serviceChartVersion)
-	ifPresentThenAdd(packagesVersionMapping, "HelmClient", helmClientVersion)
-	ifPresentThenAdd(packagesVersionMapping, "ServicePackage", servicePackageVersion)
-	ifPresentThenAdd(packagesVersionMapping, "ApiGatewayTool", apiGatewayToolVersion)
+	ifPresentThenAdd(packagesVersionMapping, "", serviceChartVersion)
+	ifPresentThenAdd(packagesVersionMapping, "ValuesPack-1", helmClientVersion)
+	ifPresentThenAdd(packagesVersionMapping, "HelmExe", servicePackageVersion)
+	ifPresentThenAdd(packagesVersionMapping, "api-gateway-tool", apiGatewayToolVersion)
+	ifPresentThenAdd(packagesVersionMapping, "helm_custom_package", servicePackageVersion)
 
 	deploymentProcess := deploymentProcessService.Get(spaceId, project.DeploymentProcessId)
 
